@@ -17,7 +17,7 @@ criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 objp = np.zeros((chessboardSize[0] * chessboardSize[1], 3), np.float32)
 objp[:,:2] = np.mgrid[0:chessboardSize[0],0:chessboardSize[1]].T.reshape(-1,2)
 
-size_of_chessboard_squares_mm = 25
+size_of_chessboard_squares_mm = 20
 objp = objp * size_of_chessboard_squares_mm
 
 # Arrays to store object points and image points from all the images.
@@ -26,10 +26,10 @@ imgpointsL = [] # 2d points in image plane.
 imgpointsR = [] # 2d points in image plane.
 
 
-imagesLeft = sorted(glob.glob("stereoLeft/*.png"))
-imagesRight = sorted(glob.glob("stereoRight/*.png"))
+imagesLeft = sorted(glob.glob('stereoLeft/*.png'))
+imagesRight = sorted(glob.glob('stereoRight/*.png'))
 
-for imgLeft in imagesLeft:
+for imgLeft, imgRight in zip(imagesLeft, imagesRight):
 
     imgL = cv.imread(imgLeft)
     imgR = cv.imread(imgRight)
@@ -41,7 +41,7 @@ for imgLeft in imagesLeft:
     retR, cornersR = cv.findChessboardCorners(grayR, chessboardSize, None)
 
     # If found, add object points, image points (after refining them)
-    if retL == True and retR == True:
+    if retL and retR == True:
 
         objpoints.append(objp)
 
@@ -98,14 +98,15 @@ rectL, rectR, projMatrixL, projMatrixR, Q, roi_L, roi_R= cv.stereoRectify(newCam
 
 stereoMapL = cv.initUndistortRectifyMap(newCameraMatrixL, distL, rectL, projMatrixL, grayL.shape[::-1], cv.CV_16SC2)
 stereoMapR = cv.initUndistortRectifyMap(newCameraMatrixR, distR, rectR, projMatrixR, grayR.shape[::-1], cv.CV_16SC2)
+print(projMatrixL)
+print(projMatrixR)
+# print("Saving parameters!")
+# cv_file = cv.FileStorage('stereoMap.xml', cv.FILE_STORAGE_WRITE)
 
-print("Saving parameters!")
-cv_file = cv.FileStorage('stereoMap.xml', cv.FILE_STORAGE_WRITE)
+# cv_file.write('stereoMapL_x',stereoMapL[0])
+# cv_file.write('stereoMapL_y',stereoMapL[1])
+# cv_file.write('stereoMapR_x',stereoMapR[0])
+# cv_file.write('stereoMapR_y',stereoMapR[1])
 
-cv_file.write('stereoMapL_x',stereoMapL[0])
-cv_file.write('stereoMapL_y',stereoMapL[1])
-cv_file.write('stereoMapR_x',stereoMapR[0])
-cv_file.write('stereoMapR_y',stereoMapR[1])
-
-cv_file.release()
+# cv_file.release()
 
